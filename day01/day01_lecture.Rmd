@@ -394,6 +394,32 @@ What is version control software?
   - Git
   - https://github.com/scottrjackson/r_programming_bsos_winter2018.git
 
+## Setting up a new version-controlled project {.smaller}
+  - In RStudio:
+    - File > New Project...
+    - New Directory (or Existing Directory)
+    - Navigate/name new folder
+    - Select "git repository"
+  - On GitHub:
+    - Log in to your account
+    - Click on the "+" in the upper right, select "New repository"
+    - Give it the same name as your project folder from above
+    - Select Public (or Private, if you don't mind paying)
+    - Click "Create repository"
+    
+## Setting up a new version-controlled project (part two) {.smaller}
+  - Back in RStudio:
+  - Click the "Git" tab in the upper right
+  - Select all the files (they should turn to green "A"s)
+  - Click "Commit"
+  - Write a commit message (like "first commit")
+  - Click the "gear" icon in the Git tab (main RStudio interface)
+  - Select "shell"
+  - Follow the GitHub directions for "push an existing repository from the command line"
+    - `git remote add origin https://github.com/USERNAME/REPONAME.git`
+    - `git push -u origin master`
+  - Now project can be easily committed/pushed/pulled using the RStudio interface
+
 # Next steps
 
 ## Practices and Homework
