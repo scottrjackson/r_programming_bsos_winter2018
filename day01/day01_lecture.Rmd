@@ -14,7 +14,8 @@ output: ioslides_presentation
   4. Discuss what programming is like
   5. Introduce the basic software toolbox
   6. Get things installed
-  7. Discuss next steps
+  7. Set up git
+  8. Discuss next steps
 
 # Intro
 
@@ -26,7 +27,8 @@ You!
     1. Their name
     2. Their major
     3. One interesting piece of trivia
-    4. What they're hoping to get out of the course
+    4. Software they've used in the past for stats/data analysis/graphing
+    5. What they're hoping to get out of the course
   - take notes (seriously!)
   - report to the class (and listen to each other)
   - email me your notes (scottrj@umd.edu)
@@ -390,9 +392,9 @@ What is version control software?
 ## Testing version control {.smaller}
   - If you haven't already, `git config` for name and email
   - In RStudio, go to File > New Project...
-  - Version Control
-  - Git
-  - https://github.com/scottrjackson/r_programming_bsos_winter2018.git
+    - Version Control
+    - Git
+    - https://github.com/scottrjackson/r_programming_bsos_winter2018.git
 
 ## Setting up a new version-controlled project {.smaller}
   - In RStudio:
