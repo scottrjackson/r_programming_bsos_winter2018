@@ -494,4 +494,4 @@ data()
 
 # FIN (questions?)
 
-## New slide at the end, for fun
+## New slide at the end, for in-class illustration
