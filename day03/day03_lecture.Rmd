@@ -101,7 +101,21 @@ write.csv(mydata, file = "outputfile.csv", row.names = FALSE) # good for writing
     - `&&` and `||`  for more specific programming situations
     
 ```{r}
+x <- c(TRUE, TRUE, FALSE, TRUE, FALSE)
+
+TRUE <- 3
+T
+F
+
+T <- FALSE
+T
+
+3 + 4
+`+`(3, 4)
+
 3 < 4
+3 == 4
+3 < c(1, 2, 5, 6)
 
 sleep
 sleep$extra < 0 | sleep$extra > 4
@@ -112,8 +126,12 @@ sleep$extra < 0 | sleep$extra > 4
 
 c(1, 2, 3, 4) < c(0, 3, 1, 5)
 
+c(1, 2) < c(0, 3, 1, 5)
+
 which(sleep$extra > 0)
 sleep$extra[sleep$extra > 0]
+
+sleep$extra[sleep$ID == 2]
 
 iris[iris$Species == "setosa" | iris$Sepal.Length > 5, ]
 
@@ -150,14 +168,33 @@ iris[!iris$Species == "setosa", ]
     - = FALSE if you don't want to read in characters as factors
 
 ```{r}
-scott <- read.csv("../scottdata/CognitionPaperFinalData.csv")
+scott <- read.csv("scottdata/CognitionPaperFinalData.csv")
 summary(scott$Merged)
 summary(as.character(scott$Merged))
 levels(scott$Merged)
+length(levels(scott$Merged))
 levels(scott$Merged) <- c("Unmerged", "Merged") # only changing the labels
+summary(scott$Merged)
 levels(scott$Merged)
 levels(scott$Merged) <- c("Merged", "Unmerged") # only changing the labels
-scott$Merged <- factor(scott$Merged, levels = c("Unmerged", "Merged"))
+
+scott$Merged <- factor(scott$Merged, levels = c("Unmerged", "Merged", "Split"))
+summary(scott$Merged)
+
+scott <- droplevels(scott)
+summary(scott$Merged)
+
+my.iris <- iris
+t.test(Sepal.Width ~ Species, data = my.iris)
+
+my.iris.nosetosa <- my.iris[my.iris$Species != "setosa", ]
+my.iris.nosetosa <- my.iris[my.iris$Species == "virginica" | my.iris$Species == "versicolor", ]
+my.iris.nosetosa <- my.iris[my.iris$Species %in% c("virginica", "versicolor"), ]
+
+summary(my.iris.nosetosa$Species)
+t.test(Sepal.Width ~ Species, data = my.iris.nosetosa)
+my.iris.nosetosa$Species <- droplevels(my.iris.nosetosa$Species)
+summary(my.iris.nosetosa$Species)
 
 # relevel()
 # takes the level specified and moves it to the front
@@ -168,7 +205,6 @@ scott$Corpus <- relevel(scott$Corpus, "RP")
 summary(scott$Corpus)
 
 # reorder()
-
 
 ```
 
@@ -195,7 +231,10 @@ summary(mysleep)
 ### Using xtabs() to check coding/cross-tabs
 
 ```{r}
+xtabs(~ direction, mysleep)
+xtabs(~ direction + Gender, mysleep)
 xtabs(~ extra + direction, mysleep)
+
 ```
 
 ### Working with factors

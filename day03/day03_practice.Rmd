@@ -6,27 +6,37 @@ output: html_document
 1. Make a "copy" of the `iris` data set in your workspace. Use `summary()` on it, identify a factor column.
 
 ```{r}
-
+my.iris <- iris
+summary(my.iris)
 ```
+
+Species is a factor
 
 2. Create different versions of the factor column, in the new data set:
    a. a numeric vector with `as.numeric()`
    b. a character vector
    
 ```{r}
-
+my.iris$SpeciesNum <- as.numeric(my.iris$Species)
+my.iris$SpeciesChar <- as.character(my.iris$Species)
+head(my.iris)
 ```
 
 3. Use `xtabs()` to see how the values in these new columns line up with the original factor column.
 
 ```{r}
-
+xtabs(~ Species + SpeciesNum, my.iris)
+xtabs(~ Species + SpeciesChar, my.iris)
 ```
 
 4. Create another column that is a copy of the factor column. Now, recode this new column so that the factor levels have new names. 
 
 ```{r}
-
+my.iris$Species2 <- my.iris$Species
+levels(my.iris$Species2) 
+levels(my.iris$Species2) <- c("pretty", "ugly", "prettiest")
+head(my.iris)
+xtabs(~ Species + Species2, my.iris)
 ```
 
 5. Check the order of levels of Species with `levels()`. Create a new column from this factor, changing the order of the levels, using:
@@ -35,7 +45,18 @@ output: html_document
   c. `factor()`
 
 ```{r}
+levels(my.iris$Species)
+my.iris$Species3 <- relevel(my.iris$Species, "virginica")
+xtabs(~ Species + Species3, my.iris)
 
+my.iris$Species4 <- reorder(my.iris$Species, my.iris$Sepal.Width)
+xtabs(~ Species + Species4, my.iris)
+
+my.iris$Species5 <- factor(my.iris$Species, levels = c("virginica", "versicolor", "setosa"))
+xtabs(~ Species + Species5, my.iris)
+
+str(my.iris$Species)
+str(my.iris)
 ```
 
 6. Working with missing values

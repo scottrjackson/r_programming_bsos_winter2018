@@ -9,8 +9,8 @@ scottdata <- read.csv("scottdata/CognitionPaperFinalData.csv")
 head(scottdata)
 
 # 3. Peek at the top few rows for only a few columns
-head(scottdata[, 1:4])
-head(scottdata[, c("Corpus", "Pair", "WithinMinPairs")])
+head(scottdata[ , 1:4])
+head(scottdata[ , c("Corpus", "Pair", "WithinMinPairs")])
 
 # 4. How many rows does your data have?
 nrow(scottdata)
@@ -27,19 +27,28 @@ summary(scottdata$Corpus)
 # 8. Select a few key columns, make a vector of the column names
 colnames(scottdata)
 key.columns <- colnames(scottdata)[c(1, 3, 6, 8)]
+key.columns2 <- c("Corpus", "Pair", "Merged", "BetweenMinPairs")
 
 # 9. Create a new data.frame with just that subset of columns
 scottdata.sub1 <- scottdata[, key.columns]
 
 # 10. Create a new data.frame that is just the first 10 rows
 #     and the last 10 rows of the data from the previous step
+scottdata.sub2 <- scottdata.sub1[1:10, ] # first ten rows
+nrow(scottdata.sub1)
+scottdata.sub2 <- scottdata.sub1[625:634, ] # last ten rows
+scottdata.sub2 <- scottdata.sub1[(nrow(scottdata.sub1)-9):nrow(scottdata.sub1), ] # last ten rows
+n.rows <- nrow(scottdata.sub1)
+scottdata.sub2 <- scottdata.sub1[(n.rows-9):n.rows, ] # last ten rows
+
 scottdata.sub2 <- scottdata.sub1[c(1:10, (nrow(scottdata.sub1)-9):nrow(scottdata.sub1)), ]
 scottdata.sub2
 
 # 11. Create a new data.frame that is a random sample of half of the rows.
 # HINT: ?sample
-sample.rows <- sample(x = nrow(scottdata), size = nrow(scottdata)/2) # replace = FALSE is the default
+sample.rows <- sample(x = nrow(scottdata), size = nrow(scottdata)/2, replace = FALSE) # replace = FALSE is the default
 sample.rows
+scottdata.sample <- scottdata[sample.rows, ]
 
 # 12. Find a comparison in your data that is interesting to make
 #     (comparing two sets of numbers)

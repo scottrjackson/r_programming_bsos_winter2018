@@ -30,9 +30,10 @@ sepalpetal.cor.virginica <- cor(my.iris$Sepal.Length[virginica.rows], my.iris$Pe
 #    lengths in the different supplement types.
 #    HINT: first use head() and summary() to "peek" at the data
 
-head(ToothGrowth)
-summary(ToothGrowth)
-View(ToothGrowth)
+myToothGrowth <- ToothGrowth
+head(myToothGrowth)
+summary(myToothGrowth)
+View(myToothGrowth)
 
 tooth.ttest <- t.test(ToothGrowth$len[1:30], ToothGrowth$len[31:60])
 
@@ -52,7 +53,7 @@ wilcox3 <- wilcox.test(sepalwidth.setosa, sepalwidth.virginica)
 # 7. Save all results (and only those results!) in an .RData object
 #    - try to think of (at least) two ways to do this
 
-save(ttest1, ttest2, ttest3,
+save(ttest1, ttest2, ttest3, 
      sepalpetal.cor, sepalpetal.cor.setosa, sepalpetal.cor.versicolor, sepalpetal.cor.virginica,
      tooth.ttest,
      wilcox1, wilcox2, wilcox3,
