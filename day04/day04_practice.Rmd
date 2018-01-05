@@ -9,7 +9,60 @@ output: html_document
    - What happens?  What data types are coerced to what?
 
 ```{r}
+numbers <- 5:8
+class(numbers)
+doubles <- c(1.1, 73, 300, -5.45)
+class(doubles)
+typeof(doubles)
+characters <- c("Alice", "Bob", "Charlie", "Daisy")
+class(characters)
+factors <- as.factor(c("Red", "Blue", "Green", "Yellow"))
+class(factors)
+levels(factors)
+factors <- factor(c("Red", "Blue", "Green", "Yellow"), levels = c("Red", "Blue", "Green", "Yellow"))
+levels(factors)
+logicals <- c(TRUE, FALSE, FALSE, TRUE)
+class(logicals)
 
+c(numbers, doubles)
+class(c(numbers, doubles))
+
+c(numbers, characters)
+class(c(numbers, characters))
+
+x <- c(numbers, doubles)
+c(x, characters)
+
+c(numbers, factors)
+class(c(numbers, factors))
+
+c(doubles, factors)
+class(c(doubles, factors))
+
+c(characters, factors)
+class(c(characters, factors))
+c(characters, as.character(factors))
+
+c(numbers, logicals)
+class(c(numbers, logicals))
+
+if(TRUE) print("yep, it's true")
+if(FALSE) print("yep, it's true")
+if(0) print("yep, it's true")
+if(1) print("yep, it's true")
+if(33) print("yep, it's true")
+if(-33) print("yep, it's true")
+if("Bob") print("yep, it's true")
+
+c(characters, logicals)
+class(c(characters, logicals))
+
+c(factors, logicals)
+class(c(factors, logicals))
+
+c(numbers, c("1", "2", "3", "4"))
+c(numbers, as.numeric(c("1", "2", "3", "4")))
+as.numeric("Bob")
 
 ```
 
@@ -51,6 +104,21 @@ Now merge this information with the `iris` data to create a new data frame. Usin
   - `anti_join()`
   
 ```{r}
+nrow(iris)
+iris.merge1 <- merge(iris, iris.info) # default all = FALSE
+nrow(iris.merge1)
+iris.merge2 <- merge(iris, iris.info, by.x = "Species", by.y = "Plant") # default all = FALSE
+nrow(iris.merge2)
+summary(iris.merge2)
+
+iris.merge3 <- merge(iris, iris.info, by.x = "Species", by.y = "Plant", all = TRUE) 
+nrow(iris.merge3)
+summary(iris.merge3)
+
+iris.merge4 <- left_join(iris, iris.info, by = c("Species" = "Plant"))
+iris.merge4$Species <- as.factor(iris.merge4$Species)
+nrow(iris.merge4)
+summary(iris.merge4)
 
 ```
 

@@ -6,6 +6,7 @@ output: html_document
 # Today's agenda
 
   - Review
+  - Excursion: generic functions
   - PRACTICE: data type coersion
   - Lists and more on data frames
   - More on NAs, NULLs, NaNs
@@ -14,11 +15,33 @@ output: html_document
 
 # Review
 
+## Generic functions
+```{r}
+scottdata <- read.csv("scottdata/CognitionPaperModifiedData.csv")
+summary(scottdata)
+summary(scottdata$Corpus)
+example.lm <- lm(HiSegType ~ LoSegType, data = scottdata)
+summary(example.lm)
+class(scottdata)
+class(scottdata$Corpus)
+class(example.lm)
+
+```
+
 # Data types & coersion
 
 ```{r}
 ?typeof
 ?class
+class(77)
+class("77")
+class(as.Date("2018-01-05"))
+Sys.Date()
+class(Sys.Date())
+Sys.Date() - as.Date("2018-01-01")
+class(Sys.Date)
+class(Sys.Date())
+
 ```
 
 `is.X` family of functions (`is.factor()`, `is.na()`, `is.finite()`, etc.)
@@ -45,10 +68,13 @@ class(z[[6]])
 names(z) 
 names(z) <- c("num", "name", "date", "factor", "values", "data")
 z["data"]
+class(z["data"])
 z[["data"]]
+class(z[["data"]])
 z$data
 length(z)
 
+mysleep <- sleep
 summary(head(mysleep))
 summary(z[6])
 summary(z[[6]])
@@ -57,15 +83,18 @@ summary(z$data)
 
 # data.frames are (special) lists
 sleep[, "extra"]
-sleep["extra"]
-sleep[["extra"]]
+sleep["extra"]        # this is kind of unusual in regular R usage
+sleep[["extra"]]      # is is also kind of weird
+sleep$extra
+nrow(sleep)
+length(sleep)
 class(sleep[, "extra"])
 class(sleep$extra)
 class(sleep[["extra"]])
 class(sleep["extra"])
 
-length(sleep)
-nrow(sleep)
+class(sleep[, "extra"])
+class(sleep[, c("extra", "ID")])
 
 identical(sleep$extra, sleep["extra"])
 identical(sleep$extra, sleep[["extra"]])
@@ -91,6 +120,9 @@ y <- c(NA, 4, 23, 2, 6)
 
 cor(x, y)
 cor(x, y, use = "complete.obs")
+x.1 <- c(2, 4, 68)
+y.1 <- c(4, 2, 6)
+cor(x.1, y.1)
 
 x == NA
 is.na(x)
@@ -180,17 +212,24 @@ summary(sleep1)
 summary(sleep2)
 sleep.reassembled <- rbind(sleep1, sleep2)
 summary(sleep.reassembled)
+sleep.reassembled.dplyr <- bind_rows(sleep1, sleep2)
+summary(sleep.reassembled.dplyr)
+summary(as.factor(sleep.reassembled.dplyr$group))
 
-sleep.reassembled2 <- bind_rows(sleep1, sleep2)
-summary(sleep.reassembled2)
+sleep1.retain <- sleep[sleep$group == "1",  ]
+sleep2.retain <- sleep[sleep$group == "2",  ]
+summary(sleep1.retain)
+summary(sleep2.retain)
+sleep.reassembled.dlplyr2 <- bind_rows(sleep1.retain, sleep2.retain)
+summary(sleep.reassembled.dlplyr2)
 
 sleep1$noise <- rnorm(10)
 
-sleep.reassembled <- rbind(sleep1, sleep2)
-summary(sleep.reassembled)
+sleep.reassembled3 <- rbind(sleep1, sleep2)
+summary(sleep.reassembled3)
 
-sleep.reassembled2 <- bind_rows(sleep1, sleep2)
-summary(sleep.reassembled2)
+sleep.reassembled4 <- bind_rows(sleep1, sleep2)
+summary(sleep.reassembled4)
 
 sleep.left <- sleep[, 1:2]
 sleep.left
@@ -205,7 +244,7 @@ sleep.ID
 sleep.reassembled.2 <- cbind(sleep.left, sleep.ID)
 sleep.reassembled.2
 
-sleep.ID <- as.data.frame(sleep[3])  # or sleep["ID"]
+sleep.ID <- sleep[3]  # or sleep["ID"]
 sleep.ID
 
 sleep.reassembled.2 <- cbind(sleep.left, sleep.ID)
@@ -274,3 +313,13 @@ Merging notes:
     - can get MUCH more complex (as needed)
       - look at "join" functions in `dplyr` for alternative functions
     - `nrow()` good check on what was gained/lost during a merge
+    - inner_join == "all = FALSE"
+    - full_join == "all = TRUE"
+
+```{r}
+?join
+
+
+
+```
+

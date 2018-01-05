@@ -9,6 +9,8 @@ output: html_document
 scottdata <- read.csv("../scottdata/CognitionPaperModifiedData.csv")
 summary(scottdata)
 
+summary(scottdata$Corpus)
+
 ```
 
 Corpus should be a factor, and it is, by default.
@@ -36,8 +38,15 @@ xtabs(~ Corpus + CorpusNum, scottdata)
 ```{r}
 scottdata$CorpusName <- scottdata$Corpus
 levels(scottdata$CorpusName)
+x <- levels(scottdata$CorpusName)
+c("Am", "Du", "Fr", "Ge") <- c("American English", "Dutch", "French", "German")
 levels(scottdata$CorpusName) <- c("American English", "Dutch", "French", "German", "Cantonese", "Korean", "British English", "Slovakian", "Spanish")
 xtabs(~ Corpus + CorpusName, scottdata)
+
+colnames(scottdata)
+colnames(scottdata)[2]
+colnames(scottdata)[2] <- "Language System"
+colnames(scottdata)
 
 ```
 
@@ -53,8 +62,20 @@ xtabs(~ Corpus + CorpusName2, scottdata)
 scottdata$CorpusName3 <- reorder(scottdata$CorpusName, scottdata$Merged, FUN = length)
 xtabs(~ Corpus + CorpusName3, scottdata)
 
+scottdata$CorpusName5 <- reorder(scottdata$CorpusName, scottdata$BetweenMinPairs, FUN = mean)
+xtabs(~ Corpus + CorpusName5, scottdata)
+
 scottdata$CorpusName4 <- factor(scottdata$CorpusName, levels = c("Spanish", "French", "German", "Dutch", "American English", "British English", "Slovakian", "Korean", "Cantonese"))
 xtabs(~ Corpus + CorpusName4, scottdata)
+
+summary(scottdata$Merged)
+
+scottdata$Merged2 <- scottdata$Merged
+
+levels(scottdata$Merged2) <- c("Unmerged", "Merged")
+levels(scottdata$Merged2)
+
+xtabs(~ Merged + Merged2, scottdata)
 
 ```
 
@@ -66,7 +87,7 @@ xtabs(~ Corpus + CorpusName4, scottdata)
 
 ```{r}
 summary(scottdata)
-scottdata[is.na(scottdata$AllMinPairs), ]
+scottdata[is.na(scottdata$CorpusName4), ]
 
 ```
 
