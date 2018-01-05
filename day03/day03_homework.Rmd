@@ -6,18 +6,27 @@ output: html_document
 1. Identify a column in your data that *should* be a factor (whether it is or not). Check to see whether R is already treating it as a factor, and if not, convert it into a factor.
 
 ```{r}
+scottdata <- read.csv("../scottdata/CognitionPaperModifiedData.csv")
+summary(scottdata)
 
 ```
+
+Corpus should be a factor, and it is, by default.
 
 2. What are the levels of the factor? How many occurrences of each level are there in the data?
    
 ```{r}
+levels(scottdata$Corpus)
+summary(scottdata$Corpus)
+xtabs(~ Corpus, scottdata)
 
 ```
 
 3. Create a new column that is a numeric "version" of the factor column, using `as.numeric()`. Use `xtabs()` to see how the values of these columns line up.
 
 ```{r}
+scottdata$CorpusNum <- as.numeric(scottdata$Corpus)
+xtabs(~ Corpus + CorpusNum, scottdata)
 
 ```
 
@@ -25,6 +34,10 @@ output: html_document
   (e.g., if you have a factor with levels "A" and "B", you could make a new column that had "condition A" and "condition B" as the level names instead)
 
 ```{r}
+scottdata$CorpusName <- scottdata$Corpus
+levels(scottdata$CorpusName)
+levels(scottdata$CorpusName) <- c("American English", "Dutch", "French", "German", "Cantonese", "Korean", "British English", "Slovakian", "Spanish")
+xtabs(~ Corpus + CorpusName, scottdata)
 
 ```
 
@@ -34,6 +47,14 @@ output: html_document
   c. `factor()`
 
 ```{r}
+scottdata$CorpusName2 <- relevel(scottdata$CorpusName, "Spanish")
+xtabs(~ Corpus + CorpusName2, scottdata)
+
+scottdata$CorpusName3 <- reorder(scottdata$CorpusName, scottdata$Merged, FUN = length)
+xtabs(~ Corpus + CorpusName3, scottdata)
+
+scottdata$CorpusName4 <- factor(scottdata$CorpusName, levels = c("Spanish", "French", "German", "Dutch", "American English", "British English", "Slovakian", "Korean", "Cantonese"))
+xtabs(~ Corpus + CorpusName4, scottdata)
 
 ```
 
@@ -44,6 +65,8 @@ output: html_document
   d. If you have any NAs in your data, describe why you think those values are missing. Does there appear to be any systematic relationship between missingness and other variables in your data?
 
 ```{r}
+summary(scottdata)
+scottdata[is.na(scottdata$AllMinPairs), ]
 
 ```
 
