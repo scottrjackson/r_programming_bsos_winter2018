@@ -17,5 +17,34 @@ output: html_document
   - Complete at least ONE example of binding and ONE example of merging
 
 ```{r}
+library(dplyr)
+scottdata <- read.csv("scottdata/CognitionPaperFinalData.csv")
+
+lang.family <- data.frame(Language = c("American English", "British English", "German", "Dutch",
+                                     "Spanish", "French", "Italian", "Portuguese",
+                                     "Slovakian", "Russian", "Czech",
+                                     "Cantonese", "Mandarin",
+                                     "Korean"),
+                        Family = c(rep("Germanic", 4),
+                                   rep("Romance", 4),
+                                   rep("Slavic", 3),
+                                   rep("Sino-Tibetan", 2),
+                                   "Koreanic"))
+                        
+levels(scottdata$Corpus)
+levels(lang.family$Language)
+
+scottdata$Language <- scottdata$Corpus
+levels(scottdata$Language)
+levels(scottdata$Language) <- c("American English", "Dutch", "French", "German", "Cantonese", "Korean", "British English", "Slovakian", "Spanish")
+scottdata$Language <- factor(scottdata$Language, levels = levels(lang.family$Language))
+xtabs(~ Language + Corpus, scottdata)
+
+scottdata.merged <- left_join(scottdata, lang.family, by = "Language")
+
+nrow(scottdata)
+nrow(scottdata.merged)
+
+xtabs(~ Language + Family, scottdata.merged)
 
 ```
