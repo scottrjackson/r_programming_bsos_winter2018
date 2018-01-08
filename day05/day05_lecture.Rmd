@@ -32,7 +32,7 @@ mysleep$Study <- "Study1"
 mysleep$Study2 <- c("Study1", "Study2")
 mysleep$noise <- rnorm(20)
 mysleep$noise2 <- rnorm(10)
-#mysleep$noise2 <- rnorm(8)
+mysleep$noise2 <- rnorm(8)
 mysleep
 ```
 
@@ -64,6 +64,8 @@ c(rep(1:2, 3, each = 5), rep(1:8, 2, each = 3), 1:10)
 
 ```
 
+# PRACTICE #2
+
 # Keeping "tidy" data
 
     - `tidyr`
@@ -85,14 +87,17 @@ mysleep
 levels(mysleep$group) <- c("pre", "post")
 
 # spread(yourdata, factor.to.spread.by, column.with.values)
+mysleep.wide <- spread(mysleep, group, extra)
+mysleep.wide
 
 # QUICK PRACTICE: compute gains
+mysleep.wide$gains <- mysleep.wide$post - mysleep.wide$pre
+mysleep.wide
 
 # gather(yourdata, new.factor.column.name, measure.column.name, columns.to.gather)
-
+mysleep.long <- gather(mysleep.wide, "treatment", "time", pre:post) # or c("pre", "post") or c(pre, post), c(2, 3)
+mysleep.long
 ```
-
-## PRACTICE #2 & #3
 
 ## Splitting up columns
   - another "tidy data" goal
@@ -105,11 +110,13 @@ who.long <- gather(who, stuff, counts, new_sp_m014:newrel_f65)
 
 who.long$stuff <- gsub("newrel", "new_rel", who.long$stuff)
 
-who.long <- separate(who.long, stuff, sep = "_", c("newold", "type", "gender.age"))
+who.long <- separate(who.long, stuff, sep = "_", c("newold", "diagnosis", "gender.age"))
 summary(who.long)
 head(who.long)
 
 ```
+
+## PRACTICE #3
 
 # Data cleaning
 ## A guideline template for data cleaning
@@ -168,7 +175,7 @@ ff.means <- summarize(group_by(myff.long, treatment, flavor), mean = mean(rating
 ff.means
 
 # other summary computations
-ff.summaries <- summarize(group_by(myff.long, treatment, flavor), mean = mean(rating, na.rm = TRUE), std.dev = sd(rating, na.rm = TRUE), N = length(rating))
+ff.summaries <- summarize(group_by(myff.long, treatment, flavor), mean = mean(rating, na.rm = TRUE), std.dev = sd(rating, na.rm = TRUE), N = length(rating[!is.na(rating)]))
 ff.summaries
 
 ```
@@ -209,7 +216,7 @@ sleep[ , c("ID", "extra")]
 select(sleep, ID, extra)
 select(sleep, 3, 1)
 select(sleep, c(3, 1))
-#select(sleep, c("ID", "extra")) # doesn't work
+select(sleep, c("ID", "extra"))
 select(sleep, c(ID, extra))
 select_(sleep, "ID", "extra") # "underscore" variants of dplyr functions:
                               #   - can use strings to identify objects

@@ -12,6 +12,39 @@ output: html_document
   - merge this new table with the copy of iris. What happened?
 
 ```{r}
+library(dplyr)
+my.iris <- iris
+species.color <- data.frame(Species = c("setosa", "virginica", "versicolor"),
+                            Color = c("red", "blue", "yellow"))
+species.color
+iris.merge1 <- merge(my.iris, species.color) #, by = "Species")
+head(iris.merge1)
+nrow(iris.merge1)
+xtabs(~ Species + Color, iris.merge1)
+
+species.color2 <- data.frame(Species = c("setosa", "virginica", "versicolor", "scorpiris"),
+                            Color = c("red", "blue", "yellow", "purple"))
+species.color2
+iris.merge2 <- merge(my.iris, species.color2, all = FALSE)
+iris.merge3 <- merge(my.iris, species.color2, all = TRUE)
+iris.merge4 <- left_join(my.iris, species.color2)
+iris.merge4$Species <- as.factor(iris.merge4$Species)
+nrow(my.iris)
+nrow(iris.merge2)
+nrow(iris.merge3)
+nrow(iris.merge4)
+
+species.color3 <- data.frame(Species = c("virginica", "versicolor"),
+                            Color = c("blue", "yellow"))
+species.color3
+iris.merge5 <- merge(my.iris, species.color3, all = FALSE)
+iris.merge6 <- merge(my.iris, species.color3, all = TRUE)
+iris.merge7 <- left_join(my.iris, species.color3)
+iris.merge7$Species <- as.factor(iris.merge7$Species)
+nrow(my.iris)
+nrow(iris.merge5)
+nrow(iris.merge6)
+nrow(iris.merge7)
 
 ```
 
@@ -21,7 +54,32 @@ output: html_document
   - Create a "median split" column on Sepal.Width. In other words, calculate the median of Sepal.Width, and then create a column that indicates whether the value in that row is less than the median or not
   
 ```{r}
+my.iris <- iris
+my.iris$log.Sepal.Width <- log(my.iris$Sepal.Width)
+my.iris$Sepal.Area <- my.iris$Sepal.Width * my.iris$Sepal.Length
 
+median.Sepal.Width <- median(my.iris$Sepal.Width)
+
+# one method
+my.iris$median.split <- NA # not necessary (but maybe used to be?)
+my.iris$median.split[my.iris$Sepal.Width < median.Sepal.Width]  <- "low"
+my.iris$median.split[my.iris$Sepal.Width >= median.Sepal.Width] <- "high"
+
+# another method
+my.iris$median.split2 <- ifelse(test = my.iris$Sepal.Width < median.Sepal.Width, 
+                               yes = "low", no = "high")
+my.iris$median.split3 <- as.factor(ifelse(test = my.iris$Sepal.Width < median.Sepal.Width, 
+                               yes = "low", no = "high"))
+
+
+# another method
+my.iris$median.split4 <- as.factor(my.iris$Sepal.Width < median.Sepal.Width)
+levels(my.iris$median.split4) <- c("low", "high") # should be c("high", "low")
+
+xtabs(~ Sepal.Width + median.split, my.iris)
+xtabs(~ median.split + median.split2, my.iris)
+xtabs(~ median.split + median.split3, my.iris)
+xtabs(~ median.split + median.split4, my.iris)
 
 ```
 
@@ -31,8 +89,13 @@ output: html_document
   - "Tidy" up the new factor column by splitting it into two columns: one designating dimension (width vs. length), one designating flower part (sepal vs. petal)
     
 ```{r}
+my.iris <- iris
+my.iris$PlantID <- as.factor(paste("plant", 1:nrow(my.iris), sep = ""))
+iris.long <- gather(my.iris, measurement, cm, Sepal.Length:Petal.Width)
+head(iris.long)
 
-
+iris.long <- separate(iris.long, measurement, sep = "\\.", c("plant.part", "dimension"))
+head(iris.long)
 ```
 
 4. Continue working with the "long" iris data from previous problem
