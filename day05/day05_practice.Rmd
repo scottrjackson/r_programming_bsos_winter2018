@@ -103,34 +103,10 @@ head(iris.long)
   - make the results "wide", with different columns for each species
 
 ```{r}
+cell.means <- group_by(iris.long, plant.part, dimension, Species) %>% summarize(mean.cm = mean(cm))
+head(cell.means)
+cell.means.wide <- spread(cell.means, Species, mean.cm)
+cell.means.wide
 
 ```
-
-5. Use the sample data in the scottdata folder
-  - run a logistic regression, using `glm()`, where the "Merged" variable is the (binary) dependent variable, and "WithinMinPairs" is the predictor.
-  - Hint: the basic usage of `glm()` is:
-
-results <- glm(DV ~ predictor1 + predictor2 + ...  ,                               
-               data = dataframe.object, family = "binomial")
-               
-```{r}
-practice <- read.csv("scottdata/CognitionPaperFinalData.csv")
-
-```
-
-  - use `summary()` to display the results.
-  
-```{r}
-
-```
-
-  - using INLINE code, report the estimate, standard error, and p-value for the WithinMinPairs coefficient.  Hint #1: save the summary as an object, and pull values from that. Hint #2: use `str()` to figure out how to extract these values. Hint #3: save the individual results as objects first, then put in inline code.
-
-```{r}
-
-```
-
-The estimate is `r`, the standard error is `r`, and the p-value is `r`.
-
-EXTRA CREDIT: figure out how to display the above results with only a few decimal places
 
