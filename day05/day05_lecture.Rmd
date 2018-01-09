@@ -224,39 +224,3 @@ select_(sleep, "ID", "extra") # "underscore" variants of dplyr functions:
 
 ```
 
-
-# Notes on complex objects
-
-  - use `names()` and `str()` to look at the structure of a complex object
-  - most complex objects have a list-like structure
-  - S3 vs. S4 classes
-    - `$` notation works for S3
-    - Try `@` instead for S4 classes
-    - For more on S4: http://adv-r.had.co.nz/OO-essentials.html
-
-```{r}
-myff <- french_fries
-results <- lm(potato ~ treatment, data = myff)
-results
-summary(results)
-# plot(results)
-class(results)
-names(results)
-str(results)
-plot(results$residuals)
-results.summary <- summary(results)
-names(results.summary)
-results.summary$adj.r.squared
-results.summary$coefficients
-class(results.summary$coefficients)
-condition.pvals <- results.summary$coefficients[c("treatment2", "treatment3"), "Pr(>|t|)"]
-condition.pvals
-
-# str(summary(results))
-# ?lm
-```
-
-The adjusted $R^2$ for this model is `r results.summary$adj.r.squared`.
-
-
-

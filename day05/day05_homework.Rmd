@@ -6,19 +6,34 @@ output: html_document
 0. Reload your data, and re-use the code you already have for getting things formatted nicely (columns renamed, factors relabeled, etc.)
 
 ```{r}
-
+library(tidyverse)
+scottdata <- read.csv("scottdata/CognitionPaperFinalData.csv")
 ```
 
 1. Aggregate (e.g., get mean/median/max/something) of some numerical variable, over one or more factors.  Use `group_by()` plus `summarize()` from the `dplyr` package. You may or may not need to reshape the data first!
 
 ```{r}
+# normal "nested" syntax
+summarize(group_by(scottdata, Merged), 
+          meanMP = mean(BetweenMinPairs), 
+          medianMP = median(BetweenMinPairs), 
+          sdMP = sd(BetweenMinPairs), 
+          N = length(BetweenMinPairs), 
+          seMP = sd(BetweenMinPairs)/sqrt(length(BetweenMinPairs)))
+
+# "piped" syntax
+group_by(scottdata, Merged) %>% summarize(meanMP = mean(BetweenMinPairs), 
+                                          medianMP = median(BetweenMinPairs), 
+                                          sdMP = sd(BetweenMinPairs), 
+                                          N = length(BetweenMinPairs), 
+                                          seMP = sd(BetweenMinPairs)/sqrt(length(BetweenMinPairs)))
 
 ```
 
 2. Get your data into "long" (aka "tidy") format, if it isn't already
 
 ```{r}
-
+# Already there!
 ```
 
 
