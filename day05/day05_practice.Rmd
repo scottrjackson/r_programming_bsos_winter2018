@@ -104,7 +104,9 @@ head(iris.long)
 
 ```{r}
 cell.means <- group_by(iris.long, plant.part, dimension, Species) %>% summarize(mean.cm = mean(cm))
-head(cell.means)
+cell.means <- summarize(group_by(iris.long, plant.part, dimension, Species), mean.cm = mean(cm))
+
+cell.means
 cell.means.wide <- spread(cell.means, Species, mean.cm)
 cell.means.wide
 

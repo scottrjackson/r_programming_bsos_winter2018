@@ -17,24 +17,30 @@ results <- glm(DV ~ predictor1 + predictor2 + ...  ,
 ```{r}
 practice <- read.csv("../scottdata/CognitionPaperFinalData.csv")
 
+glm.results <- glm(Merged ~ WithinMinPairs, data = practice, family = "binomial")
+
+glm.results2 <- glm(I(as.numeric(Merged)-1) ~ WithinMinPairs, data = practice, family = "binomial")
+
 ```
 
   - use `summary()` to display the results.
   
 ```{r}
-
+summary(glm.results)
 ```
 
   - using INLINE code, report the estimate, standard error, and p-value for the WithinMinPairs coefficient.  Hint #1: save the summary as an object, and pull values from that. Hint #2: use `str()` to figure out how to extract these values. Hint #3: save the individual results as objects first, then put in inline code.
 
 ```{r}
-
+results.summary <- summary(glm.results)
+glm.estimate <- results.summary$coefficients["WithinMinPairs", "Estimate"]
+glm.se <- results.summary$coefficients["WithinMinPairs", "Std. Error"]
+glm.pval <- results.summary$coefficients["WithinMinPairs", "Pr(>|z|)"]
 ```
 
-The estimate is `r`, the standard error is `r`, and the p-value is `r`.
+The estimate is `r round(glm.estimate, 3)`, the standard error is `r round(glm.se, 3)`, and the p-value is `r round(glm.pval, 4)`.
 
 EXTRA CREDIT: figure out how to display the above results with only a few decimal places
-
 
 # Graphics practice
 
@@ -43,6 +49,14 @@ HINT: as you go, save plots as objects. This will make the last question much ea
 0. Get the `french_fries` data into "long" format.  Call the new value variable "rating" and the factor with all the descriptors "flavor". Re-code the labels of the `treatment` variable to be "oil1", "oil2", and "oil3".
 
 ```{r}
+library(tidyverse)
+library(reshape2)
+myff <- french_fries
+myff.long <- gather(myff, flavor, rating, potato:painty)
+head(myff.long)
+summary(myff.long$treatment)
+levels(myff.long$treatment) <- c("oil1", "oil2", "oil3")
+summary(myff.long)
 
 ```
 
@@ -51,12 +65,30 @@ HINT: as you go, save plots as objects. This will make the last question much ea
    - Try some different values for `adjust` for the density plot.
 
 ```{r}
+ggplot(myff.long, aes(rating)) + geom_histogram()
+ggplot(myff.long, aes(rating)) + geom_density()
+
+ggplot(myff.long, aes(rating)) + geom_histogram(binwidth = 1)
+ggplot(myff.long, aes(rating)) + geom_histogram(binwidth = .2)
+
+ggplot(myff.long, aes(rating)) + geom_density(adjust = 1)
+ggplot(myff.long, aes(rating)) + geom_density(adjust = .2)
 
 ```
 
 2. How does the distribution look?  Try transforming the variable and try to get it to look more normal (i.e., more Gaussian).  If it already looks normal, do something to it to make it look non-normal.
 
 ```{r}
+ggplot(myff.long, aes(log(rating))) + geom_histogram()
+log(0)
+ggplot(myff.long, aes(log(rating))) + geom_histogram()
+ggplot(myff.long, aes(log(rating + 0.5))) + geom_histogram()
+
+ggplot(myff.long, aes(sqrt(rating))) + geom_histogram()
+ggplot(myff.long[myff.long$rating != 0, ], aes(sqrt(rating))) + geom_histogram()
+ggplot(filter(myff.long, rating != 0), aes(sqrt(rating))) + geom_histogram()
+
+ggplot(filter(myff.long, rating != 0), aes(log(rating))) + geom_histogram()
 
 ```
 
@@ -67,7 +99,12 @@ HINT: as you go, save plots as objects. This will make the last question much ea
    - Plot the data as a boxplot, with the factor as `x` and the numerical variable as `y`
 
 ```{r}
+ggplot(myff.long, aes(sqrt(rating))) + geom_density(aes(color = treatment))
+ggplot(myff.long, aes(sqrt(rating))) + geom_density(aes(fill = treatment))
+ggplot(myff.long, aes(sqrt(rating))) + geom_density(aes(fill = treatment), alpha = .4)
+ggplot(myff.long, aes(sqrt(rating))) + geom_density(aes(linetype = treatment))
 
+ggplot(myff.long, aes(treatment, sqrt(rating))) + geom_boxplot()
 
 ```
 
@@ -76,6 +113,12 @@ HINT: as you go, save plots as objects. This will make the last question much ea
    - Try mapping the factor to `color` or `fill`, to see what that looks like.
 
 ```{r}
+ggplot(myff.long, aes(sqrt(rating))) + geom_histogram() + facet_wrap(~ treatment)
+ggplot(myff.long, aes(sqrt(rating))) + geom_histogram(aes(fill = treatment)) + facet_wrap(~ treatment)
+
+# this might be better
+ggplot(myff.long, aes(sqrt(rating))) + geom_histogram(aes(fill = treatment)) + facet_wrap(~ flavor)
+ggplot(myff.long, aes(sqrt(rating))) + geom_density(aes(fill = treatment), alpha = .3) + facet_wrap(~ flavor)
 
 ```
 
@@ -85,6 +128,14 @@ HINT: as you go, save plots as objects. This will make the last question much ea
    - Plot a regression line on top of the scatterplot (instead of the loess)
 
 ```{r}
+myff.wide <- spread(myff.long, flavor, rating)
+head(myff.wide)
+
+ggplot(myff.wide, aes(buttery, rancid)) + geom_point()
+
+ggplot(myff.wide, aes(buttery, rancid)) + geom_point() + geom_smooth()
+
+ggplot(myff.wide, aes(buttery, rancid)) + geom_point() + geom_smooth(method = "lm")
 
 ```
 
@@ -92,6 +143,7 @@ HINT: as you go, save plots as objects. This will make the last question much ea
    - Map `treatment` to `color`
  
 ```{r}
+ggplot(myff.wide, aes(buttery, rancid, color = treatment)) + geom_point() + geom_smooth(method = "lm")
 
 ```
 

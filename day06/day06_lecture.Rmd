@@ -29,6 +29,8 @@ summary(results)
 class(results)
 names(results)
 str(results)
+results$coefficients
+results$coefficients["treatment2"]
 plot(results$residuals)
 results.summary <- summary(results)
 names(results.summary)
@@ -117,7 +119,7 @@ ggplot(myris, aes(x = Sepal.Length)) + geom_histogram(binwidth = .5)
 
 ggplot(myris, aes(x = Sepal.Length)) + geom_histogram(binwidth = .01)
 
-hist(myris$Sepal.Length)
+hist(myris$Sepal.Length, breaks = 30)
 
 mybaseplot <- ggplot(myris, aes(x = Sepal.Length))
 
@@ -126,7 +128,7 @@ mybaseplot + geom_histogram(binwidth = .2)
 names(mybaseplot)
 str(mybaseplot)
 
-base.density <- mybaseplot + geom_density(adjust = .5, fill = "grey")
+base.density <- mybaseplot
 base.density
 
 mydensity <- geom_density(adjust = .5, fill = "grey")
@@ -147,6 +149,10 @@ pdf("myplot.pdf", width = 10, height = 4)
 ggplot(myris, aes(x = Sepal.Length)) + geom_histogram()
 dev.off()
 
+png("myplot.png", width = 10, height = 4, units = "in", res = 300)
+ggplot(myris, aes(x = Sepal.Length)) + geom_histogram()
+dev.off()
+
 ?Devices
 
 # look into other PDF readers if you want to be 
@@ -159,6 +165,7 @@ dev.off()
 
 ```{r}
 # pdf("bunch of plots.pdf")
+myris <- iris
 ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width)) + geom_point()
 
 ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width)) + geom_point() + theme_classic()
@@ -169,11 +176,19 @@ myscatterplot + theme_classic()
 myscatterplot + theme_minimal()
 
 ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width)) + 
+  geom_point(aes(color = Species)) + 
+  theme_minimal()
+
+ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width)) + 
+  geom_point(color = "red") + 
+  theme_minimal()
+
+ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width)) + 
   geom_point(aes(color = Species), size = 10) + 
   theme_minimal()
 
 ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width)) + 
-  geom_point(aes(color = Petal.Width), size = 10) + 
+  geom_point(aes(color = Petal.Width), size = 3) + 
   theme_minimal()
 
 ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width)) + 
@@ -193,6 +208,11 @@ ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width)) +
   theme_minimal() +
   geom_smooth(method = "lm")
 
+ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width)) + 
+  geom_point(aes(color = Species), size = 4) + 
+  theme_minimal() +
+  geom_smooth(aes(color = Species), method = "lm")
+
 ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + 
   geom_point(size = 4) + 
   theme_minimal() +
@@ -210,7 +230,7 @@ ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
   geom_point(size = 4) + 
   theme_minimal() +
   geom_smooth(method = "lm") + 
-  scale_color_brewer(palette = "Set1")
+  scale_color_brewer(palette = "Dark2")
 
 ggplot(myris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + 
   geom_point(size = 4) + 
