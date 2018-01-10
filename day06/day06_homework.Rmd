@@ -25,7 +25,9 @@ glmer1 <- glmer(Merged ~ WithinMinPairs.scaled + HiSegTok.scaled + (1|Corpus),
 summary(glmer1)
 
 cor1 <- cor.test(scottdata$WithinMinPairs, scottdata$BetweenMinPairs)
+summary(cor1)
 print(cor1)
+cor1
 
 ```
 
@@ -75,10 +77,12 @@ ggplot(scottdata, aes(Corpus, log(WithinMinPairs + .2))) + geom_boxplot()
    - HINT: use stat = "identity" in the geom_bar() function.
    
 ```{r}
-minpair.means <- group_by(scottdata, Corpus) %>% summarize(mean.within = mean(WithinMinPairs), mean.between = mean(BetweenMinPairs))
+minpair.means <- group_by(scottdata, Corpus) %>% 
+  summarize(mean.within = mean(WithinMinPairs), 
+            mean.between = mean(BetweenMinPairs))
 minpair.means
 
-ggplot(minpair.means, aes(Corpus, mean.within)) + geom_bar(stat = "identity")
+plot1 <- ggplot(minpair.means, aes(Corpus, mean.within)) + geom_bar(stat = "identity")
 
 ```
    
@@ -87,16 +91,22 @@ ggplot(minpair.means, aes(Corpus, mean.within)) + geom_bar(stat = "identity")
    - Use the "bar" geom, but map the two variables to different graphical dimension.  One should be the "x" value, but the other should be mapped to some other visual property.
 
 ```{r}
-minpair.means.bycorpus <- group_by(scottdata, Corpus, Merged) %>% summarize(mean.within = mean(WithinMinPairs), mean.between = mean(BetweenMinPairs))
+minpair.means.bycorpus <- group_by(scottdata, Corpus, Merged) %>% 
+  summarize(mean.within = mean(WithinMinPairs), 
+            mean.between = mean(BetweenMinPairs))
 minpair.means.bycorpus
 
-ggplot(minpair.means.bycorpus, aes(Corpus, mean.within)) + geom_bar(stat = "identity", aes(fill = Merged), position = "dodge") + scale_fill_brewer(palette = "Set1")
+plot2 <- ggplot(minpair.means.bycorpus, aes(Corpus, mean.within)) + geom_bar(stat = "identity", aes(fill = Merged), position = "dodge") + scale_fill_manual(values = c("firebrick", "steelblue")) # scale_fill_brewer(palette = "Set1")
 
 ```
 
 7. Output all of the plots above (from problems 1-6) as a single PDF.
 
 ```{r}
+pdf("some_cool_plots.pdf")
+print(plot1)
+print(plot2)
+dev.off()
 
 
 ```

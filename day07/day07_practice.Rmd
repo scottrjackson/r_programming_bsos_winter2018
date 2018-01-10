@@ -8,6 +8,12 @@ In this practice, let's explore data on tipping, in the `tips` data frame from t
 0. First get a little familiar with the structure of the data, using `summary()`, `head()`, etc.  What are the numeric variables?  What are their units? What about factors? Are factor levels sensible?
 
 ```{r}
+library(tidyverse)
+library(reshape2)
+?tips
+my.tips <- tips
+head(my.tips)
+summary(my.tips)
 
 ```
 
@@ -18,6 +24,11 @@ In this practice, let's explore data on tipping, in the `tips` data frame from t
     - try two different methods
   
 ```{r}
+(tips.scatter1 <- ggplot(my.tips, aes(total_bill, tip)) + geom_point())
+
+tips.scatter1 + xlab("total amount of bill (dollars)") + ylab("total tip (dollars)")
+
+tips.scatter1 + scale_x_continuous(name = "total bill (dollars)") + scale_y_continuous("tip amount (dollars)")
 
 ```
 
@@ -27,6 +38,15 @@ In this practice, let's explore data on tipping, in the `tips` data frame from t
   - finally, use `labels = dollar` (made available by the `scales` package) to format the axis numbers as dollars
 
 ```{r}
+library(scales)
+
+tips.scatter1 + scale_x_log10() + scale_y_log10()
+tips.scatter1 + scale_x_log10(breaks = seq(0, 50, 5)) + scale_y_log10(breaks = seq(0, 10, 2))
+tips.scatter1 + scale_x_log10(breaks = seq(0, 50, 5), labels = dollar, name = "total bill") + 
+  scale_y_log10(breaks = seq(0, 10, 2), labels = dollar)
+
+tips.scatter1 + scale_x_log10(breaks = seq(0, 50, 10), labels = dollar, name = "total bill") + 
+  scale_y_log10(breaks = seq(0, 10, 2), labels = dollar)
 
 ```
 
@@ -38,6 +58,22 @@ In this practice, let's explore data on tipping, in the `tips` data frame from t
   - finally, change the overall "theme" to either the "classic", "minimal", or "bw" theme
 
 ```{r}
+(tips.scatter2 <- ggplot(my.tips, aes(total_bill, tip)) + geom_point(aes(color = sex)))
+log.dollar.x <- scale_x_log10(breaks = seq(0, 50, 10), labels = dollar, name = "total bill")
+log.dollar.y <- scale_y_log10(breaks = seq(0, 10, 2), labels = dollar)
+
+tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_brewer(palette = "Set1")
+tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hotpink", "skyblue2"))
+
+tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hotpink", "skyblue2")) +
+  geom_smooth(method = "lm", aes(color = sex))
+
+tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hotpink", "skyblue2")) +
+  geom_smooth(aes(color = sex))
+
+tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hotpink", "skyblue2")) +
+  geom_smooth(method = "lm", aes(color = sex)) + theme_minimal()
+
 
 ```
 

@@ -68,6 +68,7 @@ myris <- iris
 myris.scrambled <- myris[sample(nrow(myris), replace = FALSE), ]
 head(myris.scrambled, 20)
 myris.sorted <- arrange(myris.scrambled, Species, Sepal.Length)
+head(myris.sorted)
 ############################
 
 myris$plant <- 1:nrow(myris)
