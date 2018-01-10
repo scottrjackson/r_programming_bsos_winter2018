@@ -10,7 +10,7 @@ In this practice, let's explore data on tipping, in the `tips` data frame from t
 ```{r}
 library(tidyverse)
 library(reshape2)
-?tips
+#?tips
 my.tips <- tips
 head(my.tips)
 summary(my.tips)
@@ -42,7 +42,8 @@ library(scales)
 
 tips.scatter1 + scale_x_log10() + scale_y_log10()
 tips.scatter1 + scale_x_log10(breaks = seq(0, 50, 5)) + scale_y_log10(breaks = seq(0, 10, 2))
-tips.scatter1 + scale_x_log10(breaks = seq(0, 50, 5), labels = dollar, name = "total bill") + 
+tips.scatter1 + 
+  scale_x_log10(breaks = seq(0, 50, 5), labels = dollar, name = "total bill") + 
   scale_y_log10(breaks = seq(0, 10, 2), labels = dollar)
 
 tips.scatter1 + scale_x_log10(breaks = seq(0, 50, 10), labels = dollar, name = "total bill") + 
@@ -69,11 +70,16 @@ tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hot
   geom_smooth(method = "lm", aes(color = sex))
 
 tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hotpink", "skyblue2")) +
-  geom_smooth(aes(color = sex))
+  geom_smooth(method = "loess", aes(color = sex))
 
 tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hotpink", "skyblue2")) +
   geom_smooth(method = "lm", aes(color = sex)) + theme_minimal()
 
+tips.scatter2 + log.dollar.x + log.dollar.y + 
+  scale_color_manual(values = c("hotpink", "skyblue2")) +
+  geom_smooth(method = "lm", aes(color = sex)) + theme_minimal()
+
+ggplot(my.tips, aes(total_bill, tip)) + geom_text(aes(color = sex, label = day)) + theme_minimal() + log.dollar.x + log.dollar.y
 
 ```
 
@@ -85,6 +91,34 @@ tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hot
   - finally, put the legend back to the default position, but change the levels, such that Male is given as the first level
   
 ```{r}
+tips.scatter2 + log.dollar.x + log.dollar.y + 
+  scale_color_manual(values = c("hotpink", "skyblue2"), name = "Gender") +
+  geom_smooth(method = "lm", aes(color = sex)) + theme_minimal()
+
+tips.scatter2 + log.dollar.x + log.dollar.y + 
+  scale_color_manual(values = c("hotpink", "skyblue2"), name = "Gender") +
+  geom_smooth(method = "lm", aes(color = sex)) + theme_minimal() +
+  theme(legend.position = "left")
+
+tips.scatter2 + log.dollar.x + log.dollar.y + 
+  scale_color_manual(values = c("hotpink", "skyblue2"), name = "Gender") +
+  geom_smooth(method = "lm", aes(color = sex)) + theme_minimal() +
+  theme(legend.position = "none")
+
+tips.scatter2 + log.dollar.x + log.dollar.y + 
+  scale_color_manual(values = c("hotpink", "skyblue2"), 
+                     name = "Gender", 
+                     labels = c("Male", "Female")) + # NOT A GOOD IDEA! 
+                                                     # mismatch between labels and data
+  geom_smooth(method = "lm", aes(color = sex)) + theme_minimal()
+
+my.tips$sex <- factor(my.tips$sex, levels = c("Male", "Female"))
+# NEED TO RERUN ggplot() CALL
+(tips.scatter2 <- ggplot(my.tips, aes(total_bill, tip)) + geom_point(aes(color = sex)))
+
+tips.scatter2 + log.dollar.x + log.dollar.y + 
+  scale_color_manual(values = c("skyblue2", "hotpink"), name = "Gender") +
+  geom_smooth(method = "lm", aes(color = sex)) + theme_minimal()
 
 ```
 
@@ -94,7 +128,24 @@ tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hot
   - make a change so that the labels on the top of the facets give the full day name (e.g., "Friday", not "Fri"), and they are ordered from Thursday to Sunday
   
 ```{r}
+(updated.plot <- ggplot(my.tips, aes(total_bill, tip)) + geom_point(aes(color = sex)) + 
+  log.dollar.x + log.dollar.y + 
+  scale_color_manual(values = c("skyblue2", "hotpink"), name = "Gender") +
+  geom_smooth(method = "lm", aes(color = sex)) + theme_minimal())
 
+updated.plot + facet_wrap(~ day)
+updated.plot + facet_grid(. ~ day)
+
+updated.plot + facet_grid(day ~ .)
+
+my.tips$day <- factor(my.tips$day, levels = c("Thur", "Fri", "Sat", "Sun"))
+
+(updated.plot <- ggplot(my.tips, aes(total_bill, tip)) + geom_point(aes(color = sex)) + 
+  log.dollar.x + log.dollar.y + 
+  scale_color_manual(values = c("skyblue2", "hotpink"), name = "Gender") +
+  geom_smooth(method = "lm", aes(color = sex)) + theme_minimal())
+
+updated.plot + facet_grid(day ~ .)
 
 ```
 
@@ -105,6 +156,14 @@ tips.scatter2 + log.dollar.x + log.dollar.y + scale_color_manual(values = c("hot
   - now add back the regression lines, but only plot a single regression line (i.e., not broken down by gender), remove the confidence interval (hint: look at the arguments for `geom_smooth()`), and make the line a dashed black line
   
 ```{r}
+(size.plot <- ggplot(my.tips, aes(total_bill, tip)) + geom_point(aes(color = sex, size = size)) + 
+  log.dollar.x + log.dollar.y + 
+  scale_color_manual(values = c("skyblue2", "hotpink"), name = "Gender") +
+  theme_minimal())
+
+size.plot + facet_wrap(~ day)
+
+size.plot + facet_wrap(~ day) + geom_smooth(method = "lm", se = FALSE, color = "black", linetype = 2) + scale_size_continuous(name = "party size", labels = c("one", "two", "three", "four", "five", "six"))
 
 ```
 

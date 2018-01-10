@@ -141,6 +141,9 @@ ggplot(myris.wide, aes(Length, Width)) + geom_point(aes(color = Species, shape =
 myris.scatter2 + set1.colors + theme(legend.position = "top")
 myris.scatter2 + set1.colors + theme(legend.position = "none")
 
+
+myris.scatter2 + scale_color_brewer(labels = c("a", "b", "c"), palette = "Set1")
+
 myris.wide2 <- myris.wide
 levels(myris.wide2$Species)
 levels(myris.wide2$Species) <- c("a", "b", "c")
@@ -148,15 +151,16 @@ levels(myris.wide2$Species) <- c("a", "b", "c")
 ggplot(myris.wide2, aes(x = Length, Width)) + geom_point(aes(color = Species), size = 4) + set1.colors
 
 # changing font
-myris.scatter2 + scale_color_brewer(palette = "Set1", name = "Iris species") + theme(text = element_text(family = "serif", size = 20))
+myris.scatter2 + scale_color_discrete(name = "Iris species") + theme(text = element_text(family = "mono", size = 20))
 
-#windowsFonts()
+windowsFonts()
 #quartzFonts()
 
-windowsFonts(awesome = windowsFont("TT Comic Sans MS"))
+windowsFonts(awesome = windowsFont("TT Comic Sans MS"),
+             blackadder = windowsFont("TT Blackadder ITC Regular"))
 windowsFonts()
 
-myris.scatter2 + scale_color_brewer(palette = "Set1", name = "Iris species") + theme(text = element_text(family = "awesome", size = 20))
+myris.scatter2 + scale_color_brewer(palette = "Set1", name = "Iris species") + theme(plot.title = element_text(family = "awesome", size = 20)) + ggtitle("great title")
 
 ```
 
@@ -168,6 +172,7 @@ myris.scatter2 + scale_color_brewer(palette = "Set1", name = "Iris species") + t
 ## Color control examples
 
 ```{r}
+colors()
 myris.scatter2 + scale_color_manual(values = c("red", "blue", "green"))
 
 # RGB
