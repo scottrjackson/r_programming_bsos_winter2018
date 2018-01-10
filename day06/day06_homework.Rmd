@@ -6,7 +6,9 @@ output: html_document
 0. Reload your data, and re-use the code you already have for getting things formatted nicely (columns renamed, factors relabeled, etc.)
 
 ```{r}
-
+library(tidyverse)
+scottdata <- read.csv("scottdata/CognitionPaperFinalData.csv")
+scottdata$Merged <- factor(scottdata$Merged, levels = c("Unmerged", "Merged"))
 ```
 
 1. Run TWO DIFFERENT simple analyses or statistical tests, such as linear regression (`lm()`), logistic regression (`glm()`), correlation test (`cor.test()`), t-test (`t.test()`), or non-parametric tests (e.g., `wilcox.test()`).  For each of these:
@@ -15,6 +17,15 @@ output: html_document
   - Report some key statistics from the analysis, using **inline** code. HINT: outside of an R code chunk, use `r codehere` format.
   
 ```{r}
+library(lme4)
+scottdata$WithinMinPairs.scaled <- as.numeric(scale(scottdata$WithinMinPairs)) 
+scottdata <- mutate(scottdata, HiSegTok.scaled = as.numeric(scale(HiSegTok))) # dplyr way of transforming
+glmer1 <- glmer(Merged ~ WithinMinPairs.scaled + HiSegTok.scaled + (1|Corpus), 
+                data = scottdata, family = "binomial")
+summary(glmer1)
+
+cor1 <- cor.test(scottdata$WithinMinPairs, scottdata$BetweenMinPairs)
+print(cor1)
 
 ```
 
@@ -23,12 +34,22 @@ output: html_document
    - Try some different values for `adjust` for the density plot.
 
 ```{r}
+ggplot(scottdata, aes(WithinMinPairs)) + geom_histogram()
+ggplot(scottdata, aes(WithinMinPairs)) + geom_histogram(binwidth = 10)
+ggplot(scottdata, aes(WithinMinPairs)) + geom_histogram(binwidth = 500)
+
+ggplot(scottdata, aes(WithinMinPairs)) + geom_density()
+ggplot(scottdata, aes(WithinMinPairs)) + geom_density(adjust = 500)
+ggplot(scottdata, aes(WithinMinPairs)) + geom_density(adjust = 10)
+ggplot(scottdata, aes(WithinMinPairs)) + geom_density(adjust = 1)
 
 ```
 
 3. How does the distribution look?  Try transforming the variable and try to get it to look more normal (i.e., more Gaussian).  If it already looks normal, do something to it to make it look non-normal.
 
 ```{r}
+ggplot(scottdata, aes(log(WithinMinPairs))) + geom_histogram()
+ggplot(scottdata, aes(log(WithinMinPairs + .2))) + geom_histogram()
 
 ```
 
@@ -39,6 +60,11 @@ output: html_document
    - Plot the data as a boxplot, with the factor as `x` and the numerical variable as `y`  HINT: use geom_boxplot
 
 ```{r}
+ggplot(scottdata, aes(log(WithinMinPairs + .2))) + geom_density(aes(color = Corpus))
+ggplot(scottdata, aes(log(WithinMinPairs + .2))) + geom_density(aes(fill = Corpus), alpha = .5)
+ggplot(scottdata, aes(log(WithinMinPairs + .2))) + geom_density(aes(linetype = Corpus))
+
+ggplot(scottdata, aes(Corpus, log(WithinMinPairs + .2))) + geom_boxplot()
 
 ```
 
@@ -49,6 +75,10 @@ output: html_document
    - HINT: use stat = "identity" in the geom_bar() function.
    
 ```{r}
+minpair.means <- group_by(scottdata, Corpus) %>% summarize(mean.within = mean(WithinMinPairs), mean.between = mean(BetweenMinPairs))
+minpair.means
+
+ggplot(minpair.means, aes(Corpus, mean.within)) + geom_bar(stat = "identity")
 
 ```
    
@@ -57,12 +87,17 @@ output: html_document
    - Use the "bar" geom, but map the two variables to different graphical dimension.  One should be the "x" value, but the other should be mapped to some other visual property.
 
 ```{r}
+minpair.means.bycorpus <- group_by(scottdata, Corpus, Merged) %>% summarize(mean.within = mean(WithinMinPairs), mean.between = mean(BetweenMinPairs))
+minpair.means.bycorpus
+
+ggplot(minpair.means.bycorpus, aes(Corpus, mean.within)) + geom_bar(stat = "identity", aes(fill = Merged), position = "dodge") + scale_fill_brewer(palette = "Set1")
 
 ```
 
 7. Output all of the plots above (from problems 1-6) as a single PDF.
 
 ```{r}
+
 
 ```
 
