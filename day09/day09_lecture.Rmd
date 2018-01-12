@@ -495,7 +495,7 @@ myris3 <- clean.iris(iris)
 library(tidyverse)
 head(starwars)
 
-lm.results <- lm(mass ~ height, data = starwars)
+lm.results <- lm(get("mass") ~ height, data = starwars)
 lm.summary <- summary(lm.results)
 lm.summary$coefficients
 # extract the estimate, p-value, and adjusted r-squared
@@ -505,13 +505,45 @@ results.table <- data.frame(estimate = lm.results$coefficients[2],
 results.table                            
 
 # loop version: loop over genders
-
+# NOTE: some genders only have one or two characters, so collapsing those into an "other" category
+my.starwars <- starwars
+my.starwars$gender2 <- ifelse(my.starwars$gender %in% c("male", "female"), my.starwars$gender, "other")
+xtabs(~ gender + gender2, my.starwars)
+all.genders <- unique(my.starwars$gender2)
+results.table <- data.frame(gender = all.genders,
+                            estimate = NA,
+                            p.val = NA,
+                            adj.r2 = NA)
+for(this.gender in all.genders) {
+  lm.results <- lm(mass ~ height, data = my.starwars[my.starwars$gender2 == this.gender, ])
+  lm.summary <- summary(lm.results)
+  lm.summary$coefficients
+  # extract the estimate, p-value, and adjusted r-squared
+  results.table[results.table$gender == this.gender, c("estimate", "p.val", "adj.r2")] <- 
+    data.frame(estimate = lm.results$coefficients[2],
+               p.val = lm.summary$coefficients[2, "Pr(>|t|)"],
+               adj.r2 = lm.summary$adj.r.squared) 
+}
+results.table
 
 # make a function to do it once
+get.lm.results <- function(data, DV, predictor) {
+  lm.results <- lm(get(DV) ~ get(predictor), data = data)
+  lm.summary <- summary(lm.results)
+  lm.summary$coefficients
+  # extract the estimate, p-value, and adjusted r-squared
+  results.table <- data.frame(estimate = lm.results$coefficients[2],
+                              p.val = lm.summary$coefficients[2, "Pr(>|t|)"],
+                              adj.r2 = lm.summary$adj.r.squared) 
+  results.table               
+}
+
+get.lm.results(my.starwars, "mass", "height")
 
 # dplyr do() version
-
-
+all.results <- group_by(my.starwars, gender2) %>%
+  do(get.lm.results(., "mass", "height"))
+all.results
 
 ```
 
