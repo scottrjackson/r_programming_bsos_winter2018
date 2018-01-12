@@ -20,8 +20,18 @@ colnames(scottdata)
 
 # without a loop
 # scottdata$AllEntropy <- as.numeric(scale(scottdata$AllEntropy))
+# scottdata$WithinEntropy <- as.numeric(scale(scottdata$WithinEntropy))
+# scottdata$SegEntropy <- as.numeric(scale(scottdata$SegEntropy))
+# scottdata$BiphoneEntropy <- as.numeric(scale(scottdata$AllEntropy))
 
 # with a loop
+entropy.columns <- c("AllEntropy", "WithinEntropy", "SegEntropy", "BiphoneEntropy")
+for(column.name in entropy.columns) {
+  scottdata[, column.name] <- as.numeric(scale(scottdata[, column.name]))
+}
+
+summary(scottdata[, entropy.columns])
+sapply(scottdata[, entropy.columns], sd)
 
 ```
 
@@ -35,6 +45,19 @@ lm.versicolor <- lm(Sepal.Width ~ Sepal.Length, data = my.iris[my.iris$Species =
 lm.virginica <- lm(Sepal.Width ~ Sepal.Length, data = my.iris[my.iris$Species == "virginica", ])
 
 # with a loop
+all.species <- unique(as.character(my.iris$Species))
+# all.species <- "some other value" # alternative
+byspecies.results <- list()
+for(species.num in 1:length(all.species)) {
+  this.species <- all.species[species.num]
+  byspecies.results[[species.num]] <- lm(Sepal.Width ~ Sepal.Length, data = my.iris[my.iris$Species == this.species, ])
+}
+
+length(byspecies.results)
+class(byspecies.results[1])
+class(byspecies.results[[1]])
+summary(byspecies.results[[1]])
+lapply(byspecies.results, summary)
 
 ```
 
@@ -45,13 +68,14 @@ x <- 1:10
 x
 get("x")
 
-t.test(myris.wide$Width, myris.wide$Length)
+t.test(extra ~ group, sleep)
 
-get("t.test")(myris.wide$Width, myris.wide$Length)
+get("t.test")(extra ~ group, sleep)
 
 tests.I.want <- c("t.test", "cor.test", "wilcox.test")
 
-get(tests.I.want[3])(myris.wide$Width, myris.wide$Length)
+get(tests.I.want[3])(sleep[sleep$group == "1", "extra"], sleep[sleep$group == "2", "extra"])
+
 ```
 
 ## Example from Adam
@@ -141,6 +165,15 @@ double.max
 x <- 1:10
 
 x * 3
+
+x <- 1:1000000
+system.time(y <- x * 3)
+
+y2 <- vector(length = length(x))
+system.time(for(i in x) {
+  y2[i] <- x[i] * 3
+})
+
 ```
 
 # The `apply` family
@@ -156,18 +189,20 @@ x * 3
 minpair <- read.csv("scottdata/CognitionPaperFinalData.csv")
 head(minpair)
 colnames(minpair)
-# head(minpair[, 10:17])
+head(minpair[, 10:17])
 minpair$allmean <- apply(minpair[, 10:17], MARGIN = 1, FUN = mean, na.rm = TRUE)
 head(minpair)
 
 double.max(1:10)
 
 mysleep.wide
-mysleep.wide$newcol <- apply(mysleep.wide[, 2:3], 1, double.max)
+mysleep.wide$newcol <- apply(mysleep.wide[, 2:3], 1, function(x) mean(x, na.rm = TRUE))
 mysleep.wide
 
+apply(mysleep.wide[, 2:3], 2, double.max)
+
 # anonymous
-mysleep.wide$newcol2 <- apply(mysleep.wide[, 2:3], 1, function(x) { max(x) * 2 })
+mysleep.wide$newcol2 <- apply(mysleep.wide[, 2:3], 1, function(arg1) { max(arg1) * 2 })
 mysleep.wide
 
 mysleep.wide$gains <- apply(mysleep.wide[, 2:3], 1, function(whatever) { whatever[2] - whatever[1] })
@@ -183,7 +218,7 @@ mysleep.wide$gains.weird <- apply(mysleep.wide[, 2:3], 1, function(y, z) { y[2] 
 mysleep.wide
 
 my.z <- 2
-mysleep.wide$gains.weird <- apply(mysleep.wide[, 2:3], 1, function(y, z) { y[2] - z }, z = 2)
+mysleep.wide$gains.weird <- apply(mysleep.wide[, 2:3], 1, function(y, z) { y[2] - z }, z = my.z)
 mysleep.wide
 
 mysleep.wide$post[c(3, 5, 7)] <- NA
@@ -267,10 +302,10 @@ head(mysleep)
 double.max(mysleep.wide$pre)
 
 mysleep.wide <- mutate(mysleep.wide, newcol3 = double.max(c(pre, post)))
+head(mysleep.wide)
 
 mysleep.wide <- 
-  mysleep.wide %>%
-  rowwise() %>%
+  rowwise(mysleep.wide) %>%
   mutate(newcol3 = double.max(c(pre, post))) # or newcol3 = max(pre, post) * 2
 mysleep.wide
 
@@ -289,18 +324,96 @@ mysleep.wide %>%
 # using the iris data, write code to:
 # - run a t.test, and 
 # - pull out the t, df, and p-value into a (one-row) data frame
+my.iris <- iris
+ttest.results <- t.test(my.iris[, "Sepal.Length"], my.iris[, "Sepal.Width"])
+t.dval <- ttest.results$statistic
+df.val <- ttest.results$parameter
+p.val <- ttest.results$p.value
 
+results.table <- data.frame(t = t.val,
+                            df = df.val,
+                            p.val = p.val)
+results.table
 
 # write the code to do the same thing, once for "setosa" and once for "versicolor"
+ttest.results <- 
+  t.test(my.iris[my.iris$Species == "setosa", "Sepal.Length"], 
+         my.iris[my.iris$Species == "setosa", "Sepal.Width"])
+t.val <- ttest.results$statistic
+df.val <- ttest.results$parameter
+p.val <- ttest.results$p.value
 
+results.table <- data.frame(t = t.val,
+                            df = df.val,
+                            p.val = p.val)
+results.table
 
 # write a loop to go through all levels of Species
+# 1. copy & paste 1-time code
+# 2. find the place(s) where the code needs to vary in each loop
+# 3. replace those varying places with a counter
+# 4. set up the counter to iterate through the values you want
+# 5. you may need to set up a results "container" where each loop will
+#    add something
+# 6. double-check stuff
+
+all.species.names <- levels(my.iris$Species)
+results.table <- data.frame(Species = all.species.names,
+                            t = NA,
+                            df = NA,
+                            p.val = NA)
+results.table
+for(species.name in all.species.names) {
+  ttest.results <- 
+    t.test(my.iris[my.iris$Species == species.name, "Sepal.Length"], 
+           my.iris[my.iris$Species == species.name, "Sepal.Width"])
+  t.val <- ttest.results$statistic
+  df.val <- ttest.results$parameter
+  p.val <- ttest.results$p.value
+
+  results.table[results.table$Species == species.name, 
+                c("t", "df", "p.val")] <- c(t.val, df.val, p.val)
+}
+results.table
 
 # write a function that will return the one-row data frame of results
-
+get.ttest <- function(data, col1, col2) {
+  # data is a data frame
+  # col1 is a string that's a column name
+  # col2 is a string that's another column name
+  data <- as.data.frame(data)
+  ttest.results <- t.test(data[, col1], data[, col2])
+  t.val <- ttest.results$statistic
+  df.val <- ttest.results$parameter
+  p.val <- ttest.results$p.value
+  
+  results.table <- data.frame(t = t.val,
+                              df = df.val,
+                              p.val = p.val)
+  results.table
+}
 # run the function on the overall iris data
 
+get.ttest(data = my.iris, col1 = "Sepal.Width", col2 = "Sepal.Length")
+
 # use group_by() and do() to get the results separately for each level of Species
+
+my.byspecies.results <- group_by(my.iris, Species) %>%
+  do(get.ttest(., col1 = "Sepal.Width", col2 = "Sepal.Length")) 
+
+my.byspecies.results
+
+debug(get.ttest)
+# undebug(get.ttest)
+
+
+group_by(my.iris, Species) %>%
+  do(get.ttest(., col1 = "Petal.Width", col2 = "Petal.Length")) 
+
+head(minpair)
+
+group_by(minpair, Corpus) %>%
+  do(get.ttest(., col1 = "WithinMinPairs", col2 = "BetweenMinPairs"))
 
 ```
 
@@ -372,14 +485,29 @@ clean.iris <- function(iris = iris) {
 
 myris2 <- clean.iris(iris)
 identical(myris, myris2)
+
+myris3 <- clean.iris(iris)
+
 ```
 
 ```{r}
 # run a regression 
+library(tidyverse)
+head(starwars)
+
+lm.results <- lm(mass ~ height, data = starwars)
+lm.summary <- summary(lm.results)
+lm.summary$coefficients
 # extract the estimate, p-value, and adjusted r-squared
+results.table <- data.frame(estimate = lm.results$coefficients[2],
+                            p.val = lm.summary$coefficients[2, "Pr(>|t|)"],
+                            adj.r2 = lm.summary$adj.r.squared) 
+results.table                            
 
 # loop version
 
+
+# make a function to do it once
 
 # dplyr do() version
 
@@ -404,7 +532,13 @@ bad.double.max <- function(x) { # not a good idea
   output
 }
 
+y <- 1:10
 bad.double.max(y)
+
+rm(arg1)
+
+bad.double.max(y)
+y
 
 double.max <- function(x) {
   max(x) * 2  # ok, because it's a value
@@ -413,6 +547,8 @@ double.max <- function(x) {
 bad.double.max2 <- function(x) {
   output <- max(x) * 2  # not returning a value
 }
+
+bad.double.max2(1:10)
 
 #double.max <- function(x) { max(x) * 2 }
 #double.max <- function(x) max(x) * 2 
@@ -430,12 +566,14 @@ double.max <- function(x) {
 x <- double.max(1:10)
 x
 
+y
 double.max <- function(x) {
   output <- max(x) * 2
   y <- 6
   output
 }
 
+double.max(1:10)
 y
 
 evil.double.max <- function(x) {
@@ -444,8 +582,13 @@ evil.double.max <- function(x) {
   output
 }
 
+evil.double.max(5:70)
+y
+
 rm(y)
 set.seed(42)
+rnorm(3)
+rnorm(5)
 x <- evil.double.max(rnorm(20))
 x
 y
