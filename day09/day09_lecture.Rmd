@@ -54,6 +54,8 @@ tests.I.want <- c("t.test", "cor.test", "wilcox.test")
 get(tests.I.want[3])(myris.wide$Width, myris.wide$Length)
 ```
 
+## Example from Adam
+
 # Some weird counters in loops
 
 ```{r}
@@ -83,7 +85,9 @@ for(counter in 1:1000) { # pretend that counter == 843 is bad, we want to skip i
   - insert `print()` statements to check on things mid-loop
   - manually set the counter variable value, step through the loop
 
+===========
 # Functions
+===========
   - making a function
   - anonymous functions
   - environments
