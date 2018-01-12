@@ -6,6 +6,15 @@ output: html_document
 1. Write an if...else statement to test whether a string matches "right", and if so, print "you win!", but if the string matches "wrong", print "you lose!", and if it's neither, print "the result is inconclusive".
 
 ```{r}
+my.string <- "wrong"
+
+if(my.string == "right") { 
+  print("you win!") 
+} else if(my.string == "wrong") {
+  print("you lose!")
+} else {
+  print("the result is inconclusive")
+}
 
 ```
 
@@ -16,6 +25,12 @@ output: html_document
   - make a plot in ggplot2 to confirm that you did this right
   
 ```{r}
+my.iris <- iris
+my.iris$threshold <- ifelse(my.iris$Sepal.Length < 5, "low", ifelse(my.iris$Sepal.Length > 6, "high", ifelse(my.iris$Sepal.Length >= 5 & my.iris$Sepal.Length <= 6, "mid", NA)))
+my.iris$threshold <- factor(my.iris$threshold, levels = c("low", "mid", "high"))
+
+ggplot(my.iris, aes(threshold, Sepal.Length)) + geom_point()
+ggplot(my.iris, aes(Sepal.Length)) + geom_histogram(aes(fill = threshold))
 
 ```
 
@@ -27,6 +42,25 @@ output: html_document
     - use pdf() and dev.off() so that the three plots get written out to a single file
     
 ```{r}
+my.iris <- iris
+ggplot(my.iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+ggplot(my.iris, aes(Sepal.Length, Sepal.Width)) + geom_point() + facet_wrap(~ Species)
+
+ggplot(my.iris[my.iris$Species == "virginica", ], aes(Sepal.Length, Sepal.Width)) + geom_point() + ggtitle("virginica")
+
+pdf("loop_plots.pdf")
+for(this.species in levels(my.iris$Species)) {
+  print(ggplot(my.iris[my.iris$Species == this.species, ], aes(Sepal.Length, Sepal.Width)) + geom_point() + ggtitle(this.species))
+}
+dev.off()
+
+for(counter in 1:100) {
+  my.value <- counter * 2
+  if(counter == 54) {
+    stop("incomprehensible error message")
+  }
+}
+
 
 ```
 
@@ -37,9 +71,10 @@ output: html_document
   
 ```{r}
 # set up the parameters of the simulation
-
+n.sim <- 1000
 
 # set up the "empty" data frame for the results
+sim.results <- data.frame(sim = 1:
 
 # start the loop
 # each iteration of the loop should:

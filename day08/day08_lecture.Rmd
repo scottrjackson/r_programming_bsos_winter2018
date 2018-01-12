@@ -20,19 +20,19 @@ output: html_document
   -       else if(OPTIONAL ADDITIONAL TEST) { CODE BLOCK if TRUE }   <-- "else" code only tested if initial "if" fails
 
 ```{r}
-x <- 2
-if(x > 1){
+x <- 1
+if(x > 1) {
   print(x)
 }
 
-x <- 2
+x <- 1
 if(x > 1) {
   print("you have enough!")
 } else {
   print("you need more!")
 }
 
-x <- 3
+x <- 1
 if(x > 3) {
   print("you have too many!")
 } else if(x < 3) {
@@ -41,7 +41,7 @@ if(x > 3) {
   print("just right!")
 }
 
-x <- c(1:10)
+x <- c(1:10, NA)
 if(anyNA(x)) {
   number.of.NAs <- sum(is.na(x))
   print(paste("The mean (ignoring", number.of.NAs, 
@@ -56,12 +56,12 @@ if(anyNA(x)) {
     - arguments are: test = [LOGICAL TEST], yes = [VALUE if TEST == TRUE], no = [VALUE if TEST == FALSE]
 
 ```{r} 
-x <- 4
-result <- ifelse(x > 3, "yay", "oh no!")
+x <- 2:5
+result <- ifelse(test = x > 3, yes = "yay", no = "oh no!")
 result
 
 x <- 3
-result <- ifelse(x > 3, "yay", ifelse(x < 3, "oh no!", "well, okay"))
+result <- ifelse(x > 3, "yay", ifelse(x < 3, "oh no!", "ok, the value must be 3, then"))
 result
 
 # redux
@@ -111,9 +111,10 @@ for(this.name in c("Ally", "Bob", "Carol")) {
 }
 
 # WARNING: you must create objects before you can subset them
-# my.answer <- vector()
+my.answer <- vector()
 for(this.group in c(1, 2, 3)) {
-  this.vector <-  mydf$x[mydf$group == this.group]
+  # this.vector <- mydf[mydf$group == 1, "x"]
+  this.vector <-  mydf[mydf$group == this.group, "x"]
   my.answer[this.group] <- mean(this.vector)  
 }
 my.answer
@@ -133,7 +134,7 @@ my.groups <- 1:1000
 
 my.answer <- vector(length = length(my.groups))
 
-system.time(for(this.counter in 1:length(my.groups)) {
+system.time(for(this.counter in my.groups) {
   this.group <- my.groups[this.counter]
   this.vector <- mydf[mydf$group == this.group, "x"]
   my.answer[this.counter] <- mean(this.vector)
@@ -158,6 +159,8 @@ plot(dnorm(x) ~ x)
 plot(pnorm(x) ~ x)
 plot(qnorm(seq(0, 1, .01)) ~ seq(0, 1, .01))
 
+2*(1-pnorm(abs(1.96)))
+
 y <- rnorm(1000, mean = 1, sd = 2)
 summary(y)
 sd(y)
@@ -168,6 +171,7 @@ cor.table <- matrix(c(1, .2, .2, 1), nrow = 2)
 cor.table
 some.data <- mvrnorm(n = 10, mu = c(1, 2), Sigma = cor.table, empirical = FALSE)
 some.data
+summary(some.data)
 cor(some.data[, 1], some.data[, 2])
 as.data.frame(some.data)
 ```
@@ -181,8 +185,10 @@ mu.sigmas
 data.sets <- list()
 length(data.sets) <- 5
 for(i in 1:length(data.sets)) {
+  
   data.sets[[i]] <- as.data.frame(mvrnorm(n = 1000, mu = c(mu.sigmas[i, "mean1"], mu.sigmas[i, "mean2"]), Sigma = matrix(c(1, mu.sigmas[i, "corr"], mu.sigmas[i, "corr"], 1), ncol = 2)))
   data.sets[[i]]$set <- i
+  
   write.csv(data.sets[[i]], file = paste("sampledata", i, ".csv", sep = ""), row.names = FALSE)
 }
 
@@ -195,6 +201,10 @@ a1 <- 1
 a2 <- 55
 a3 <- 43
 a4 <- 1001
+
+for(this.var in c(a1, a2, a3, a4)) {
+  print(this.var * 2)
+}
 
 # get() function
 for(this.var in paste("a", 1:4, sep = "")) {
@@ -209,7 +219,7 @@ for(this.var in paste("a", 1:4, sep = "")) {
 ```{r}
 # set up the parameters of the simulation
 n.sim <- 10000
-sample.n <- 100
+sample.n <- 200
 correlation <- .2
 
 cortable <- matrix(c(1, correlation, correlation, 1), ncol = 2)
