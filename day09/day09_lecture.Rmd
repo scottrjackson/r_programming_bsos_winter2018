@@ -504,7 +504,7 @@ results.table <- data.frame(estimate = lm.results$coefficients[2],
                             adj.r2 = lm.summary$adj.r.squared) 
 results.table                            
 
-# loop version
+# loop version: loop over genders
 
 
 # make a function to do it once
