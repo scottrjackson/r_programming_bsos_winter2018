@@ -11,6 +11,7 @@ output: html_document
     - People you know
     - TaskViews: R home page > link on the left for Packages > link for CRAN Task Views
     - Papers (contact authors if necessary)
+    - `citation()`
   2. If you find a package:
     - Look at the CRAN page
       - Google: "CRAN <packagename>"
@@ -176,6 +177,7 @@ NOTE: sometimes "indices" work better than "values"
 all.species <- levels(myris$Species)
 
 my.results <- data.frame(species = all.species, est = NA, std.err = NA, pval = NA)
+my.results
 my.plots <- list()
 
 for(this.row in 1:length(all.species)) {
@@ -215,11 +217,16 @@ my.plots[[1]]
 
 ```{r}
 
-get.results <- function(chunk, DV, IV) {
+get.results <- function(chunk, IV, DV = "", my.formula = NULL) {
   # expect chunk to be a data frame
   # expect DV and IV to be strings, names of columns to go in the regression
-  my.formula <- as.formula(paste(DV, "~", IV)) # handy way to "build" a formula
+  if(is.null(my.formula)) {
+    my.formula <- as.formula(paste(DV, "~", IV)) # handy way to "build" a formula
+  } else if(class(my.formula) != "formula") {
+    stop("my.formula needs to be a formula! DUH") 
+  }
   myris.lm <- lm(my.formula, data = chunk) 
+  # myris.lm <- lm(get(DV) ~ get(IV), data = chunk)
   coefs <- summary(myris.lm)$coefficients
   
   # the values we want
@@ -235,6 +242,8 @@ get.results <- function(chunk, DV, IV) {
 }
 
 get.results(myris, DV = "Petal.Width", IV = "Petal.Length")
+get.results(myris, IV = "Petal.Length", my.formula = Petal.Width ~ Petal.Length)
+get.results(myris, IV = "Petal.Length", my.formula = "Petal.Width ~ Petal.Length")
 
 library(dplyr)
 
@@ -245,9 +254,6 @@ all.results
 # without pipes
 all.results2 <- as.data.frame(do(.data = group_by(myris, Species), get.results(.,  DV = "Petal.Width", IV = "Petal.Length")))
 all.results2
-
-
-all.results
 
 ```
 
@@ -273,7 +279,7 @@ test.function <- function(chunk, DV, IV) {
   # the values we want
   est <- coefs[IV, "Estimate"]
   std.err <- coefs[IV, "Std. Error"]
-  pval <- coefs[IV, "Pr(>t|)"]
+  pval <- coefs[IV, "Pr(>|t|)"]
   plot <- ggplot(chunk, aes(get(IV), get(DV))) + geom_point() + geom_smooth(method = "lm") + labs(title = this.species)
   
   # stick the values in our results object
@@ -296,14 +302,14 @@ test.function2 <- function(chunk, DV, IV) {
   my.formula <- as.formula(paste(DV, "~", IV))
   myris.lm <- lm(my.formula, data = chunk) 
   coefs <- summary(myris.lm)$coefficients
-  #if(this.species == "setosa") { # if you want to selectively browse
-    browser()
-  #}
+  # if(this.species == "virginica") { # if you want to selectively browse
+  #   browser()
+  # }
  
   # the values we want
   est <- coefs[IV, "Estimate"]
   std.err <- coefs[IV, "Std. Error"]
-  pval <- coefs[IV, "Pr(>t|)"]
+  pval <- coefs[IV, "Pr(>|t|)"]
   plot <- ggplot(chunk, aes(get(IV), get(DV))) + geom_point() + geom_smooth(method = "lm") + labs(title = this.species)
    # stick the values in our results object
   my.results <- data.frame(est = est, std.err = std.err, pval = pval)
@@ -319,13 +325,124 @@ test.function2(myris, "Sepal.Width", "Sepal.Length")
 ## EXAMPLE: SD-based cutoffs
 
 ```{r}
+myris <- iris
+
+myris$plantID <- 1:nrow(myris)
+
+mean.value <- mean(myris$Sepal.Length)
+sd.value <- sd(myris$Sepal.Length)
+min.value <- mean.value - sd.value*1
+max.value <- mean.value + sd.value*1
+myris$Sepal.LengthTrunc <- ifelse(myris$Sepal.Length < min.value, yes = min.value, ifelse(myris$Sepal.Length > max.value, yes = max.value, no = myris$Sepal.Length))
+
+
+truncate.by.sd <- function(chunk, value.column, multiplier = 1) {
+  chunk <- as.data.frame(chunk)
+  mean.value <- mean(chunk[, value.column])
+  sd.value <- sd(chunk[, value.column])
+  min.value <- mean.value - sd.value*multiplier
+  max.value <- mean.value + sd.value*multiplier
+  chunk$value.columnTrunc <- ifelse(chunk[, value.column] < min.value, yes = min.value, ifelse(chunk[, value.column] > max.value, yes = max.value, no = chunk[, value.column]))
+  return(chunk)
+}
+
+myris2 <- truncate.by.sd(myris, "Sepal.Length")
+summary(myris2)
+
+myris3 <- group_by(myris, Species) %>% do(truncate.by.sd(., "Sepal.Length"))
+summary(myris3)
+
+myris <- iris
+myris$plantID <- 1:nrow(myris)
+
+library(dplyr)
+library(tidyr)
+myris.long <- gather(myris, variable, value, Sepal.Length:Petal.Width)
+
+head(myris.long)
+
+myris4 <- group_by(myris.long, Species, variable) %>% 
+  do(truncate.by.sd(., "value"))
+
+head(myris4)
+
+myris4.wide <- spread(myris4, variable, value)
+summary(myris4.wide)
 
 ```
 
 ## EXAMPLE: Error bars
 
 ```{r}
+head(myris.long)
 
+std.err <- function(x) {
+  se <- sd(x)/sqrt(length(x))
+  se
+}
+
+cell.means <- group_by(myris.long, variable, Species) %>%
+  summarize(mean.value = mean(value), se = std.err(value))
+
+cell.means
+
+ggplot(cell.means, aes(variable, mean.value)) + 
+  geom_bar(stat = "identity", aes(fill = Species), position = "dodge") + geom_errorbar(aes(group = Species, ymin = mean.value - 1.96*se, ymax = mean.value + 1.96*se), position = position_dodge(width = .85), width = 2)
+
+
+```
+
+# When to use vectorizing functions
+
+Scott's rules of thumb:
+  - IFF you are doing something to each row in your data (or to each column), you can use `apply()`
+  - IFF you want to do some function to each member of a vector or a list (one-dimensional), you can use `sapply()` (or `lapply()` if you want to get a list back)
+  - EVERYWHERE ELSE, try to use the group_by() function in dplyr
+    - may require you to set up a table of conditions
+    - sometimes summarize()
+      - when you want to boil down a lot of numbers (or some other vector) to one
+    - sometimes mutate()
+      - based on transformation of another column
+      - with rowwise() instead of group_by(), you get the same effect as apply()
+    - sometimes do()
+      - anything more complicated, write a function, and use do()
+      - you take a chunk of a data frame and return a data frame
+      
+# Another example: bootstrapping
+
+```{r}
+myris <- iris
+head(myris)
+
+setosa <- myris[myris$Species == "setosa", ]
+
+cor(setosa$Sepal.Length, setosa$Sepal.Width)
+
+lm.results <- lm(Sepal.Width ~ Sepal.Length, setosa)
+r.squared.overall <- summary(lm.results)$adj.r.squared
+r.squared.overall
+
+n.sim <- 10000
+
+boot.results <- data.frame(sim = 1:n.sim, r.squared = NA)
+for(sim in 1:n.sim) {
+  if(sim %% 500 == 0) {
+    print(paste("starting simulation #", sim))
+  }
+  sim.data <- setosa[sample(nrow(setosa), replace = TRUE), ]
+
+  lm.results <- lm(Sepal.Width ~ Sepal.Length, sim.data)
+  r.squared <- summary(lm.results)$adj.r.squared
+  boot.results[sim, "r.squared"] <- r.squared
+}
+
+head(boot.results)
+
+ggplot(boot.results, aes(r.squared)) + geom_histogram() + geom_vline(xintercept = r.squared.overall, color = "red")
+
+bottom.top <- quantile(boot.results$r.squared, c(.025, .975))
+
+ggplot(boot.results, aes(r.squared)) + geom_histogram() + geom_vline(xintercept = r.squared.overall, color = "red") + geom_vline(xintercept = bottom.top[1], color = "red", linetype = 2) + geom_vline(xintercept = bottom.top[2], color = "red", linetype = 2)
 
 ```
 
